@@ -1,8 +1,24 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
 config_version=5
 
 [application]
+
 config/name="RustedWorld"
+run/main_scene="uid://bbpqoraodl35d"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 
+[autoload]
+
+EventBus="*uid://dyaq5334ha4pd"
+
 [dotnet]
+
 project/assembly_name="RustedWorld.Game"
+project/solution_directory="../../"

@@ -1,5 +1,0 @@
-<Solution>
-    <Project Path="src/RustedWorld.Api/RustedWorld.Api.csproj" />
-    <Project Path="src/RustedWorld.Game/RustedWorld.Game.csproj" />
-    <Project Path="tests/RustedWorld.Api.Test/RustedWorld.Api.Test.csproj" />
-</Solution>
