@@ -1,5 +1,9 @@
 <Project Sdk="Godot.NET.Sdk/4.6.0">
     <PropertyGroup>
-        <RootNamespace>RustedWorld.Game</RootNamespace>
+        <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\RustedWorld.Api\RustedWorld.Api.csproj" />
+        <PackageReference Include="NLog" Version="6.1.0" />
+    </ItemGroup>
 </Project>
