@@ -8,6 +8,10 @@ config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 
 [autoload]
 EventBus="*res://src/Event/EventBus.cs"
+Logger="*res://src/Logging/Logging.cs"
+
+[debug]
+file_logging/enable_file_logging.pc=false
 
 [dotnet]
 project/assembly_name="RustedWorld.Game"
