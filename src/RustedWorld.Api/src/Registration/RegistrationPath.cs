@@ -1,26 +1,27 @@
 using System;
-using System.Collections.Immutable;
 using System.Linq;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
 namespace RustedWorld.Api.Registration;
 
-public readonly partial record struct RegistrationPath {
-	[GeneratedRegex(@"^[^\s]|[\w\._]+$", RegexOptions.Singleline)]
+public partial class RegistrationPath: IEquatable<RegistrationPath> {
+	[GeneratedRegex(@"^[\.\-\w-[\s]]+$", RegexOptions.Singleline)]
 	private static partial Regex PathItemRegex { get; }
 	
-	[GeneratedRegex(@"^(?'ModId'[^\s]|[\w\._]+):(?:/(?'Item'[^\s]|[\w\._]+))+/?$", RegexOptions.Singleline)]
+	[GeneratedRegex(@"^(?'Namespace'[\.\-\w-[\s]]+):(?:/?(?'Item'[\.\-\w-[\s]]+))+/?$", RegexOptions.Singleline)]
 	private static partial Regex FullPathRegex { get; }
 
-	public readonly string ModId;
+	public readonly string Namespace;
 	public readonly ImmutableArray<string> Items;
 	
 	private readonly int _hashCode;
 	
-	public RegistrationPath(string modId, params string[] items) {
-		ModId = PathItemRegex.IsMatch(modId)
-			? modId
-			: throw new ArgumentException("Incorrect argument format", nameof(modId));
+	public RegistrationPath(string @namespace, params ICollection<string> items) {
+		Namespace = PathItemRegex.IsMatch(@namespace)
+			? @namespace
+			: throw new ArgumentException("Incorrect argument format", nameof(@namespace));
 		Items = items.All(item => PathItemRegex.IsMatch(item))
 			? [..items]
 			: throw new ArgumentException("Incorrect argument format", nameof(items));
@@ -31,17 +32,25 @@ public readonly partial record struct RegistrationPath {
 		Match match = FullPathRegex.Match(path);
 		if (!match.Success)
 			throw new ArgumentException("Incorrect argument format", nameof(path));
-		ModId = match.Groups["ModId"].Value;
+		Namespace = match.Groups["Namespace"].Value;
 		Items = [..match.Groups["Item"].Captures.Select(item => item.Value)];
 		_hashCode = GenerateHashCode();
 	}
 	
-	private int GenerateHashCode() => Items.Aggregate(ModId.GetHashCode(), (code, item) => code ^ item.GetHashCode());
+	private int GenerateHashCode() => Items
+		.Index()
+		.Aggregate(Namespace.GetHashCode(), (code, item) => code ^ item.Index ^ item.Item.GetHashCode());
 
-	public override string ToString() => $"{ModId}:/{string.Join("/", Items)}";
+	public override string ToString() => $"{Namespace}:{string.Join('/', Items)}";
+
+	public bool Equals(RegistrationPath? other) => other?.GetHashCode() == GetHashCode();
+	public override bool Equals(object? obj) => Equals(obj as RegistrationPath);
 
 	public override int GetHashCode() => _hashCode;
 
-	public static RegistrationPath operator +(RegistrationPath path, string item) => new(path.ModId, [..path.Items, item]);
-	public static RegistrationPath operator +(RegistrationPath path, string[] items) => new(path.ModId, [..path.Items, ..items]);
+	public static RegistrationPath operator /(RegistrationPath path, string item) => new(path.Namespace, [..path.Items, item]);
+	public static RegistrationPath operator /(RegistrationPath path, string[] items) => new(path.Namespace, [..path.Items, ..items]);
+
+	public static implicit operator string(RegistrationPath path) => path.ToString();
+	public static implicit operator RegistrationPath(string path) => new(path);
 }
