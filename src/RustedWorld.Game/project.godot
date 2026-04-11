@@ -9,6 +9,7 @@ config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 [autoload]
 EventBus="*res://src/Event/EventBus.cs"
 Logger="*res://src/Logging/Logging.cs"
+RegistrationManager="*res://src/Registration/RegistrationManager.cs"
 
 [debug]
 file_logging/enable_file_logging.pc=false
