@@ -1,59 +1,135 @@
-using System.Numerics;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace RustedWorld.Api.Math;
 
-public readonly record struct Vector2F(float X, float Y):
-	IVectorFunctions<Vector2F>,
-	IMinMaxValue<Vector2F>,
-
-	IIncrementOperators<Vector2F>,
-	IDecrementOperators<Vector2F>,
-	
-	IAdditionOperators<Vector2F, Vector2F, Vector2F>,
-	IAdditionOperators<Vector2F, float, Vector2F>,
-	
-	ISubtractionOperators<Vector2F, Vector2F, Vector2F>,
-	ISubtractionOperators<Vector2F, float, Vector2F>,
-	
-	IMultiplyOperators<Vector2F, Vector2F, Vector2F>,
-	IMultiplyOperators<Vector2F, float, Vector2F>,
-	
-	IDivisionOperators<Vector2F, Vector2F, Vector2F>,
-	IDivisionOperators<Vector2F, float, Vector2F>
-{
-	
-	#region MinMaxValue
-	public static Vector2F MaxValue => new(float.MaxValue, float.MaxValue);
+public record struct Vector2F(float X, float Y): IFloatingVector<Vector2F, float> {
 	public static Vector2F MinValue => new(float.MinValue, float.MinValue);
-	#endregion
+	public static Vector2F MaxValue => new(float.MaxValue, float.MaxValue);
+	
+	public float Length() => MathF.Sqrt(MathF.Pow(X, 2) + MathF.Pow(Y, 2));
 
-	public static Vector2F Abs(Vector2F vector) => new(System.Math.Abs(vector.X), System.Math.Abs(vector.Y));
+	public float this[int index] {
+		get => index switch {
+			0 => X,
+			1 => Y,
+			_ => throw new IndexOutOfRangeException()
+		};
+		set {
+			switch (index) {
+				case 0: X = value; return;
+				case 1: Y = value; return;
+				default: throw new IndexOutOfRangeException();
+			}
+		}
+	}
 
-	#region IncrementOperators
-	public static Vector2F operator ++(Vector2F value) => new(value.X + 1, value.Y + 1);
-	#endregion
+	public float this[char name] {
+		get => name switch {
+			'x' => X,
+			'y' => Y,
+			_ => throw new KeyNotFoundException()
+		};
+		set {
+			switch (name) {
+				case 'x': X = value; return;
+				case 'y': Y = value; return;
+				default: throw new KeyNotFoundException(name.ToString());
+			}
+		}
+	}
 
-	#region DecrementOperators
-	public static Vector2F operator --(Vector2F value) => new(value.X - 1, value.Y - 1);
-	#endregion
+	public Vector2F Abs() => new(float.Abs(X), float.Abs(Y));
 
-	#region AdditionOperators
+	public Vector2F Clamp(Vector2F min, Vector2F max) => new(
+		float.Clamp(X, min.X, max.X),
+		float.Clamp(Y, min.Y, max.Y)
+	);
+	public Vector2F Clamp(float min, float max) => new(
+		float.Clamp(X, min, max),
+		float.Clamp(Y, min, max)
+	);
+	
+	public Vector2F Round(int digits, MidpointRounding mode) => new(
+		float.Round(X, digits, mode),
+		float.Round(Y, digits, mode)
+	);
+
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	public IEnumerator<KeyValuePair<char, float>> GetEnumerator() {
+		yield return new('x', X);
+		yield return new('y', Y);
+	}
+
+	public void operator ++() {
+		X++;
+		Y++;
+	}
+	public void operator --() {
+		X--;
+		Y--;
+	}
+
+	public void operator += (Vector2F vector) {
+		X += vector.X;
+		Y += vector.Y;
+	}
+	public void operator -= (Vector2F vector) {
+		X -= vector.X;
+		Y -= vector.Y;
+	}
+	public void operator *= (Vector2F vector) {
+		X *= vector.X;
+		Y *= vector.Y;
+	}
+	public void operator /= (Vector2F vector) {
+		X /= vector.X;
+		Y /= vector.Y;
+	}
+
+	public void operator += (float number) {
+		X += number;
+		Y += number;
+	}
+	public void operator -= (float number) {
+		X -= number;
+		Y -= number;
+	}
+	public void operator *= (float number) {
+		X *= number;
+		Y *= number;
+	}
+	public void operator /= (float number) {
+		X /= number;
+		Y /= number;
+	}
+
 	public static Vector2F operator +(Vector2F left, Vector2F right) => new(left.X + right.X, left.Y + right.Y);
-	public static Vector2F operator +(Vector2F left, float right) => new(left.X + right, left.Y + right);
-	#endregion
-
-	#region SubtractionOperators
 	public static Vector2F operator -(Vector2F left, Vector2F right) => new(left.X - right.X, left.Y - right.Y);
-	public static Vector2F operator -(Vector2F left, float right) => new(left.X - right, left.Y - right);
-	#endregion
-
-	#region MultiplyOperators
 	public static Vector2F operator *(Vector2F left, Vector2F right) => new(left.X * right.X, left.Y * right.Y);
-	public static Vector2F operator *(Vector2F left, float right) => new(left.X * right, left.Y * right);
-	#endregion
-
-	#region DivisionOperators
 	public static Vector2F operator /(Vector2F left, Vector2F right) => new(left.X / right.X, left.Y / right.Y);
-	public static Vector2F operator /(Vector2F left, float right) => new(left.X / right, left.Y / right);
-	#endregion
+
+	public static Vector2F operator +(Vector2F vector, float number) => new(vector.X + number, vector.Y + number);
+	public static Vector2F operator -(Vector2F vector, float number) => new(vector.X - number, vector.Y - number);
+	public static Vector2F operator *(Vector2F vector, float number) => new(vector.X * number, vector.Y * number);
+	public static Vector2F operator /(Vector2F vector, float number) => new(vector.X / number, vector.Y / number);
+
+	public static Vector2F operator +(Vector2F vector) => vector;
+	public static Vector2F operator -(Vector2F vector) => new(-vector.X, -vector.Y);
+
+	public static bool operator ==(Vector2F vector, float number) => (vector.X == number) && (vector.Y == number);
+	public static bool operator !=(Vector2F vector, float number) => (vector.X == number) && (vector.Y == number);
+
+	public static bool operator >(Vector2F left, Vector2F right) => (left.X > right.X) && (left.Y > right.Y);
+	public static bool operator <(Vector2F left, Vector2F right) => (left.X < right.X) && (left.Y < right.Y);
+	public static bool operator >=(Vector2F left, Vector2F right) => (left.X >= right.X) && (left.Y >= right.Y);
+	public static bool operator <=(Vector2F left, Vector2F right) => (left.X <= right.X) && (left.Y <= right.Y);
+
+	public static bool operator >(Vector2F vector, float number) => (vector.X > number) && (vector.Y > number);
+	public static bool operator <(Vector2F vector, float number) => (vector.X < number) && (vector.Y < number);
+	public static bool operator >=(Vector2F vector, float number) => (vector.X >= number) && (vector.Y >= number);
+	public static bool operator <=(Vector2F vector, float number) => (vector.X <= number) && (vector.Y <= number);
+
+	public static implicit operator Vector2I(Vector2F vector) => new((int) vector.X, (int) vector.Y);
 }

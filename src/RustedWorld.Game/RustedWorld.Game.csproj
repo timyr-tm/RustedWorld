@@ -1,12 +1,12 @@
-<Project Sdk="Godot.NET.Sdk/4.6.1">
+<Project Sdk="Godot.NET.Sdk/4.6.2">
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\RustedWorld.Api\RustedWorld.Api.csproj" />
-    </ItemGroup>
-    <ItemGroup>
+        <ProjectReference Include="..\RustedWorld.Api.Extensions.Godot\RustedWorld.Api.Extensions.Godot.csproj" />
+        
         <PackageReference Include="Serilog" Version="4.3.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     </ItemGroup>

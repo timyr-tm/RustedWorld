@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <ItemGroup>
+        <PackageReference Include="GodotSharp" Version="4.6.2" />
+        <ProjectReference Include="..\RustedWorld.Api\RustedWorld.Api.csproj" />
+    </ItemGroup>
+</Project>

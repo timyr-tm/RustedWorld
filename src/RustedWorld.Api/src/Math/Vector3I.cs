@@ -1,58 +1,147 @@
-using System.Numerics;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace RustedWorld.Api.Math;
 
-public readonly record struct Vector3I(int X, int Y, int Z):
-	IVectorFunctions<Vector3I>,
-	IMinMaxValue<Vector3I>,
-
-	IIncrementOperators<Vector3I>,
-	IDecrementOperators<Vector3I>,
-	
-	IAdditionOperators<Vector3I, Vector3I, Vector3I>,
-	IAdditionOperators<Vector3I, int, Vector3I>,
-	
-	ISubtractionOperators<Vector3I, Vector3I, Vector3I>,
-	ISubtractionOperators<Vector3I, int, Vector3I>,
-	
-	IMultiplyOperators<Vector3I, Vector3I, Vector3I>,
-	IMultiplyOperators<Vector3I, int, Vector3I>,
-	
-	IDivisionOperators<Vector3I, Vector3I, Vector3I>,
-	IDivisionOperators<Vector3I, int, Vector3I>
-{
-	#region MinMaxValue
-	public static Vector3I MaxValue => new(int.MaxValue, int.MaxValue, int.MaxValue);
+public record struct Vector3I(int X, int Y, int Z): IVector<Vector3I, int> {
 	public static Vector3I MinValue => new(int.MinValue, int.MinValue, int.MinValue);
-	#endregion
+	public static Vector3I MaxValue => new(int.MaxValue, int.MaxValue, int.MaxValue);
 
-	public static Vector3I Abs(Vector3I vector) => new(System.Math.Abs(vector.X), System.Math.Abs(vector.Y), System.Math.Abs(vector.Z));
+	public int this[int index] {
+		get => index switch {
+			0 => X,
+			1 => Y,
+			2 => Z,
+			_ => throw new IndexOutOfRangeException()
+		};
+		set {
+			switch (index) {
+				case 0: X = value; return;
+				case 1: Y = value; return;
+				case 2: Z = value; return;
+				default: throw new IndexOutOfRangeException();
+			}
+		}
+	}
+	public int this[char name] {
+		get => name switch {
+			'x' => X,
+			'y' => Y,
+			'z' => Z,
+			_ => throw new KeyNotFoundException()
+		};
+		set {
+			switch (name) {
+				case 'x': X = value; return;
+				case 'y': Y = value; return;
+				case 'z': Z = value; return;
+				default: throw new KeyNotFoundException(name.ToString());
+			}
+		}
+	}
 
-	#region IncrementOperators
-	public static Vector3I operator ++(Vector3I value) => new(value.X + 1, value.Y + 1, value.Z + 1);
-	#endregion
+	public float Length() => MathF.Sqrt(MathF.Pow(X, 2) + MathF.Pow(Y, 2) + MathF.Pow(Z, 2));
 
-	#region DecrementOperators
-	public static Vector3I operator --(Vector3I value) => new(value.X - 1, value.Y - 1, value.Z - 1);
-	#endregion
+	public Vector3I Abs() => new(int.Abs(X), int.Abs(Y), int.Abs(Z));
 
-	#region AdditionOperators
+	public Vector3I Clamp(Vector3I min, Vector3I max) => new(
+		int.Clamp(X, min.X, max.X),
+		int.Clamp(Y, min.Y, max.Y),
+		int.Clamp(Z, min.Z, max.Z)
+	);
+	public Vector3I Clamp(int min, int max) => new(
+		int.Clamp(X, min, max),
+		int.Clamp(Y, min, max),
+		int.Clamp(Z, min, max)
+	);
+	
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	public IEnumerator<KeyValuePair<char, int>> GetEnumerator() {
+		yield return new('x', X);
+		yield return new('y', Y);
+		yield return new('z', Z);
+	}
+
+	public void operator ++() {
+		X++;
+		Y++;
+		Z++;
+	}
+
+	public void operator --() {
+		X--;
+		Y--;
+		Z--;
+	}
+
+	public void operator += (Vector3I vector) {
+		X += vector.X;
+		Y += vector.Y;
+		Z += vector.Z;
+	}
+	public void operator -= (Vector3I vector) {
+		X -= vector.X;
+		Y -= vector.Y;
+		Z -= vector.Z;
+	}
+	public void operator *= (Vector3I vector) {
+		X *= vector.X;
+		Y *= vector.Y;
+		Z *= vector.Z;
+	}
+	public void operator /= (Vector3I vector) {
+		X /= vector.X;
+		Y /= vector.Y;
+		Z /= vector.Z;
+	}
+
+	public void operator += (int number) {
+		X += number;
+		Y += number;
+		Z += number;
+	}
+	public void operator -= (int number) {
+		X -= number;
+		Y -= number;
+		Z -= number;
+	}
+	public void operator *= (int number) {
+		X *= number;
+		Y *= number;
+		Z *= number;
+	}
+	public void operator /= (int number) {
+		X /= number;
+		Y /= number;
+		Z /= number;
+	}
+
 	public static Vector3I operator +(Vector3I left, Vector3I right) => new(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
-	public static Vector3I operator +(Vector3I left, int right) => new(left.X + right, left.Y + right, left.Z + right);
-	#endregion
-
-	#region SubtractionOperators
 	public static Vector3I operator -(Vector3I left, Vector3I right) => new(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
-	public static Vector3I operator -(Vector3I left, int right) => new(left.X - right, left.Y - right, left.Z - right);
-	#endregion
-
-	#region MultiplyOperators
 	public static Vector3I operator *(Vector3I left, Vector3I right) => new(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
-	public static Vector3I operator *(Vector3I left, int right) => new(left.X * right, left.Y * right, left.Z * right);
-	#endregion
-
-	#region DivisionOperators
 	public static Vector3I operator /(Vector3I left, Vector3I right) => new(left.X / right.X, left.Y / right.Y, left.Z / right.Z);
-	public static Vector3I operator /(Vector3I left, int right) => new(left.X / right, left.Y / right, left.Z / right);
-	#endregion
+
+	public static Vector3I operator +(Vector3I vector, int number) => new(vector.X + number, vector.Y + number, vector.Z + number);
+	public static Vector3I operator -(Vector3I vector, int number) => new(vector.X - number, vector.Y - number, vector.Z - number);
+	public static Vector3I operator *(Vector3I vector, int number) => new(vector.X * number, vector.Y * number, vector.Z * number);
+	public static Vector3I operator /(Vector3I vector, int number) => new(vector.X / number, vector.Y / number, vector.Z / number);
+
+	public static Vector3I operator +(Vector3I vector) => vector;
+	public static Vector3I operator -(Vector3I vector) => new(-vector.X, -vector.Y, -vector.Z);
+
+	public static bool operator ==(Vector3I vector, int number) => (vector.X == number) && (vector.Y == number) && (vector.Z == number);
+	public static bool operator !=(Vector3I vector, int number) => (vector.X == number) && (vector.Y == number) && (vector.Z == number);
+
+	public static bool operator >(Vector3I left, Vector3I right) => (left.X > right.X) && (left.Y > right.Y) && (left.Z > right.Z);
+	public static bool operator <(Vector3I left, Vector3I right) => (left.X < right.X) && (left.Y < right.Y) && (left.Z < right.Z);
+	public static bool operator >=(Vector3I left, Vector3I right) => (left.X >= right.X) && (left.Y >= right.Y) && (left.Z >= right.Z);
+	public static bool operator <=(Vector3I left, Vector3I right) => (left.X <= right.X) && (left.Y <= right.Y) && (left.Z <= right.Z);
+
+	public static bool operator >(Vector3I vector, int number) => (vector.X > number) && (vector.Y > number) && (vector.Z > number);
+	public static bool operator <(Vector3I vector, int number) => (vector.X < number) && (vector.Y < number) && (vector.Z < number);
+	public static bool operator >=(Vector3I vector, int number) => (vector.X >= number) && (vector.Y >= number) && (vector.Z >= number);
+	public static bool operator <=(Vector3I vector, int number) => (vector.X <= number) && (vector.Y <= number) && (vector.Z <= number);
+	
+	public static explicit operator Vector3F(Vector3I vector) => new(vector.X, vector.Y, vector.Z);
 }
